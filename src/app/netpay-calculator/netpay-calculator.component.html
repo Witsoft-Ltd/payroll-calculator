@@ -1,0 +1,261 @@
+<form class="example-form">
+<mat-card class="example-card"
+    *ngIf="!ShowPayslip">
+
+  <mat-card-content>
+
+      <mat-form-field class="full-width-field">
+        <mat-label aria-label="Gross pay">Gross pay</mat-label>
+        <input matInput
+              type="number"
+              name="GrossPay"
+              [(ngModel)]="PayrollCalculator.GrossPay"
+              [formControl]="grosspayField"
+              required
+              autocomplete="on"/>
+        <!-- <mat-hint>Sum of basic salary and allowances</mat-hint> -->
+        <mat-error *ngIf="grosspayField.invalid">{{getErrorMessage()}}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="full-width-field">
+        <mat-label>Non cash benefits</mat-label>
+        <input matInput
+              [(ngModel)]="PayrollCalculator.Benefits"
+              name="Benefits"
+              type="number" />
+        <!-- <mat-hint>Sum of car and other non cash benefits</mat-hint> -->
+      </mat-form-field>
+
+      <mat-form-field class="full-width-field"
+                      role="group">
+        <mat-label>Type of housing</mat-label>
+        <mat-select
+                [(ngModel)] = "PayrollCalculator.HousingType"
+                name ="HousingType">
+          <mat-option
+            *ngFor="let type of HousingTypes"
+            [value] = "type.id">
+              {{type.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div *ngIf="PayrollCalculator.HousingType == 2 || PayrollCalculator.HousingType == 3">
+        <mat-form-field class="full-width-field">
+          <mat-label>
+            <span *ngIf="PayrollCalculator.HousingType == 2">House market value</span>
+            <span *ngIf="PayrollCalculator.HousingType == 3">House rent</span>
+          </mat-label>
+          <input matInput
+                name="HouseValue"
+                [(ngModel)]="PayrollCalculator.HouseValue"
+                type="number" />
+        </mat-form-field>
+
+        <mat-form-field class="full-width-field">
+          <mat-label>Rent recovered from employee</mat-label>
+          <input matInput
+                type="number"
+                name="RentRecovered"
+                [(ngModel)]="PayrollCalculator.RentRecovered" />
+        </mat-form-field>
+      </div>
+
+      <mat-form-field class="full-width-field"
+                      role="group">
+        <mat-label>
+          NSSF Rates
+        </mat-label>
+        <mat-select
+          [(ngModel)]="PayrollCalculator.NSSFRateType"
+          name="NSSFRateType">
+          <mat-option
+            *ngFor="let rate of NSSFRates"
+            [value]="rate.id">
+            {{rate.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="full-width-field">
+        <mat-label>Pension contribution</mat-label>
+        <input matInput
+              type="number"
+              name="Pension"
+              [(ngModel)]="PayrollCalculator.Pension"/>
+      </mat-form-field>
+
+      <mat-form-field class="full-width-field">
+        <mat-label>Other allowable deductions</mat-label>
+        <input matInput
+              type="number"
+              name="HOSP"
+              [(ngModel)]="PayrollCalculator.MortgageInterest"/>
+      </mat-form-field>
+
+      <mat-form-field class="full-width-field">
+        <mat-label>Insurance relief</mat-label>
+        <input matInput
+              type="number"
+              name="InsuranceRelief"
+              [(ngModel)]="PayrollCalculator.InsuranceRelief" />
+        <mat-hint>15% of insurance premium, maximum (5,000)</mat-hint>
+      </mat-form-field>
+
+
+
+  </mat-card-content>
+  <mat-card-actions class="actions-centered">
+    <button
+        mat-raised-button
+        color="primary"
+        [disabled]="grosspayField.invalid"
+        (click)="CalculateNetPay()">
+        Calculate
+      </button>
+    <button
+        mat-raised-button
+        color="accent"
+        (click)="ClearForm()">Clear</button>
+  </mat-card-actions>
+</mat-card>
+
+<mat-card class="example-card"
+    *ngIf="ShowPayslip">
+    <mat-card-header>
+      <mat-card-title>Payslip</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="payslip">
+        <div class="payslip-section-header">
+          Tax Calculation
+        </div>
+        <div class="payslip-item"
+          *ngIf="Payslip.GrossPay">
+          <span>Gross pay</span>
+          <span class="payslip-item-spacer"></span>
+          <span>{{Payslip.GrossPay| number:'0.2-2'}}</span>
+        </div>
+        <div class="payslip-item"
+          *ngIf="Payslip.Benefits">
+          <span>ADD: Benefits</span>
+          <span class="payslip-item-spacer"></span>
+          <span>{{Payslip.Benefits| number:'0.2-2'}}</span>
+        </div>
+        <div class="payslip-item"
+          *ngIf="Payslip.HouseBenefit">
+          <span>ADD: House Benefit</span>
+          <span class="payslip-item-spacer"></span>
+          <span>{{Payslip.HouseBenefit| number:'0.2-2'}}</span>
+        </div>
+        <div class="payslip-item"
+          *ngIf="Payslip.TotalAllowableDeductions">
+          <span>LESS: Allowable Deductions</span>
+          <span class="payslip-item-spacer"></span>
+          <span>{{Payslip.TotalAllowableDeductions| number:'0.2-2'}}</span>
+        </div>
+
+        <div class="payslip-subheader">
+          <span>Taxable Pay</span>
+          <span class="payslip-item-spacer"></span>
+          <span>{{Payslip.TaxablePay| number:'0.2-2'}}</span>
+        </div>
+
+        <div class="payslip-item"
+          *ngIf="Payslip.TaxCharged">
+          <span>Tax Charged</span>
+          <span class="payslip-item-spacer"></span>
+          <span>{{Payslip.TaxCharged| number:'0.2-2'}}</span>
+        </div>
+
+        <div class="payslip-item"
+          *ngIf="Payslip.MPRF">
+          <span>LESS: Monthly Relief</span>
+          <span class="payslip-item-spacer"></span>
+          <span>{{Payslip.MPRF| number:'0.2-2'}}</span>
+        </div>
+
+        <div class="payslip-item"
+          *ngIf="Payslip.InsuranceRelief">
+          <span>LESS: Insurance Relief</span>
+          <span class="payslip-item-spacer"></span>
+          <span>{{Payslip.InsuranceRelief| number:'0.2-2'}}</span>
+        </div>
+
+        <div class="payslip-item"
+          *ngIf="Payslip.PAYE">
+          <span>PAYE</span>
+          <span class="payslip-item-spacer"></span>
+          <span>{{Payslip.PAYE| number:'0.2-2'}}</span>
+        </div>
+
+        <div class="payslip-section-header">
+          Deductions
+        </div>
+
+        <div class="payslip-item"
+          *ngIf="Payslip.RentRecovered">
+          <span>Rent Recovered</span>
+          <span class="payslip-item-spacer"></span>
+          <span>{{Payslip.RentRecovered| number:'0.2-2'}}</span>
+        </div>
+
+        <div class="payslip-item"
+          *ngIf="Payslip.NSSFTierOneAmount">
+          <span *ngIf="Payslip.NSSFRateType !== 3">NSSF Tier I</span>
+          <span *ngIf="Payslip.NSSFRateType == 3">NSSF</span>
+          <span class="payslip-item-spacer"></span>
+          <span>{{Payslip.NSSFTierOneAmount| number:'0.2-2'}}</span>
+        </div>
+
+        <div class="payslip-item"
+          *ngIf="Payslip.NSSFTierTwoAmount">
+          <span>NSSF Tier II</span>
+          <span class="payslip-item-spacer"></span>
+          <span>{{Payslip.NSSFTierTwoAmount| number:'0.2-2'}}</span>
+        </div>
+
+        <div class="payslip-item"
+          *ngIf="Payslip.Pension">
+          <span>Pension</span>
+          <span class="payslip-item-spacer"></span>
+          <span>{{Payslip.Pension| number:'0.2-2'}}</span>
+        </div>
+
+        <div class="payslip-item"
+          *ngIf="Payslip.NHIF">
+          <span>NHIF</span>
+          <span class="payslip-item-spacer"></span>
+          <span>{{Payslip.NHIF| number:'0.2-2'}}</span>
+        </div>
+
+        <div class="payslip-item"
+          *ngIf="Payslip.PAYE">
+          <span>PAYE</span>
+          <span class="payslip-item-spacer"></span>
+          <span>{{Payslip.PAYE| number:'0.2-2'}}</span>
+        </div>
+
+        <div class="payslip-subheader">
+          <span>Total Deductions</span>
+          <span class="payslip-item-spacer"></span>
+          <span>{{Payslip.TotalDeductions| number:'1.2-2'}}</span>
+        </div>
+
+        <div class="payslip-subheader">
+          <span>Net pay</span>
+          <span class="payslip-item-spacer"></span>
+          <span>{{Payslip.Netpay| number:'1.2-2'}}</span>
+        </div>
+      </div>
+
+    </mat-card-content>
+    <mat-card-actions class="actions-centered">
+      <button
+          mat-raised-button
+          color="primary"
+          (click)="IntializeCalculator()"
+          role="button">New Calculation</button>
+    </mat-card-actions>
+  </mat-card>
+</form>

@@ -1,0 +1,45 @@
+<div class="top-menu"
+     role="heading"
+     aria-labelledby="Payroll Tax Calculator"
+     aria-level="1">
+  <mat-toolbar color="primary">
+    <mat-toolbar-row>
+      <span>Payroll Tax Calculator</span>
+      <span class="example-spacer"></span>
+
+      <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Memu icon">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item [routerLink]="'/'"
+                role="menuitem"
+                aria-label="Tax calculator">
+          <mat-icon>keyboard</mat-icon>
+          <span>Tax calculator</span>
+        </button>
+        <button mat-menu-item [routerLink]="'/rates'"
+                role="menuitem"
+                aria-label="Rates">
+          <mat-icon>view_module</mat-icon>
+          <span>Rates</span>
+        </button>
+        <button mat-menu-item [routerLink]="'/contact'"
+                role="menuitem"
+                aria-label="Contact Info">
+          <mat-icon>assignment_ind</mat-icon>
+          <span>Contact Info</span>
+        </button>
+      </mat-menu>
+
+    </mat-toolbar-row>
+  </mat-toolbar>
+</div>
+
+<div class="body-container ">
+  <div class="content-aligned-center">
+    <div class="header-description">
+      <b>New rates are valid from April 2020 onwards</b>
+    </div>
+    <router-outlet></router-outlet>
+  </div>
+</div>
